@@ -1,4 +1,4 @@
-# AI Chatbot Backend with RAG
+# AI Chatbot Backend 
 
 A sophisticated backend API for an AI-powered chatbot featuring Retrieval Augmented Generation (RAG), document upload capabilities, and conversation history management. Built with Node.js, Express, LangChain, PostgreSQL, and pgvector.
 
