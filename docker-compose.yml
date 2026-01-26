@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # PostgreSQL database with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: chatbot-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js backend application
+  backend:
+    build: .
+    container_name: chatbot-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chatbot
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  pgdata:
